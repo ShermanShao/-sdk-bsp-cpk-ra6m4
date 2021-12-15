@@ -1,0 +1,156 @@
+board:
+  buy_url_cn: N/A
+  buy_url_global: N/A
+  debug_interface: SWD
+  debugger: J-Link
+  description_en: The CPK-RA6M4 MCU evaluation board, developed based on Renesas RA6M4
+    MCU, can help users easily evaluate the characteristics of RA6M4 MCU group through
+    flexible configuration software package and IDE, and develop embedded system applications.
+  description_zh: 基于瑞萨 RA6M4 MCU 开发的 CPK-RA6M4 MCU 评估板，通过灵活配置软件包和 IDE，可帮助用户对 RA6M4
+    MCU 群组的特性轻松进行评估，并对嵌入系统应用程序进行开发。
+  emulator_machine: ''
+  large_image: documents/images/ra6m4-cpk.jpg
+  name: CPK-RA6M4
+  price_cn: N/A CNY
+  price_global: N/A USD
+  sale_contact_cn: N/A
+  sale_contact_global: N/A
+  small_image: documents/images/ra6m4-cpk - 副本.jpg
+  vendor: RENESAS
+  version: 1.0.0
+chip:
+  chip_name: R7FA6M4AF3CFB
+  clock_source: HSE
+  device_vendor: RENESAS
+  family_name: RA
+  rx_name: PA10
+  series_name: RA6
+  source_freq: '8000000'
+  sub_series_name: RA6M4
+  target_freq: '240000000'
+  tx_name: PA9
+  uart_name: UART1
+docs:
+- category: manual
+  file: documents/r12uz0090cc0110-ra6m4-manual.pdf
+  title: ra6m4 User Manual
+- category: sheet
+  file: documents/RA6M4_datasheet.pdf
+  title: RA6M4_datasheet
+- category: other
+  file: documents/RA6M4_Group_User’s_Manual_Hardware.pdf
+  title: RA6M4_Group_User’s_Manual_Hardware
+example_projects:
+- builtin_files:
+  - files_and_folders:
+    - .config
+    - .cproject
+    - .gitignore
+    - .ignore_format.yml
+    - .project
+    - .settings
+    - buildinfo.gpdsc
+    - cconfig.h
+    - configuration.xml
+    - demo
+    - docs
+    - drivers
+    - Kconfig
+    - makefile.targets
+    - packages
+    - ports
+    - project.uvoptx
+    - project.uvprojx
+    - R7FA6M4AF3CFB.pincfg
+    - ra
+    - ra_cfg
+    - ra_gen
+    - README.md
+    - rt-thread
+    - rtconfig.h
+    - rtconfig.py
+    - rtconfig_preinc.h
+    - SConscript
+    - SConstruct
+    - script
+    - src
+    - template.uvoptx
+    - template.uvprojx
+    source_path_offset: project_1
+    target_path_offset: ''
+  external_files: []
+  project_description: 传感器网关示例工程
+  project_name: sensor_gateway
+  project_type: rt-thread|@full|@4.0.4
+features:
+- 200MHz, Arm Cortex®-M33 Core
+- Arm TrustZone
+- LQFP 144-pin
+- 1MB code flash
+- 192KB supports the parity SRAM and 64KB ECC SRAM
+- USB connector for master MCU (host/device)
+- Seggerj-link ® on-board (OB) interface for debugging and programming. A 10-pin JTAG/SWD
+  interface is provided for connecting optional external debuggers and programmers.
+- Two PMOD connectors, allowing rapid prototyping using appropriate PMOd-compatible
+  peripheral plug-in modules
+- The oscillator crystal provides accurate 24.000 MHz and 32.768 Hz external reference
+  clocks
+- The onboard POWER regulator is powered by the 5 V external input voltage of the
+  DEBUG/POWER USB connector to POWER the logic and interfaces on the board. 5 V or
+  3.3V power supply can be used for the standby position on the board.
+features_zh:
+- 200MHz, Arm Cortex®-M33 内核
+- 支持 TrustZone
+- LQFP 144-pin
+- 最大 1 MB 代码闪存
+- 192KB 支持奇偶校验 SRAM 以及 64kb ECC SRAM
+- 主 MCU 的 USB 连接器（主机侧/设备侧）
+- SEGGERJ-Link®板上（OB）接口，用于调试和编程。提供了 10 引脚 JTAG / SWD 接口，用于连接可选 的外部调试器和编程器。
+- 两个 PMOD 连接器，允许使用适当的 PMOD 兼容外围插件模块进行快速原型开发
+- 振荡器晶体提供了精确的 24.000 MHz 和 32.768 Hz 外部参考时钟
+- 通过 DEBUG / POWER USB 连接器的 5 V 外部输入电压为板载电源稳压器提供电源，为板上的逻辑和接 口供电。板上的备用位置可选用 5 V 或 3.3
+  V 电源。
+pkg_type: Board_Support_Packages
+pkg_vendor: Sherman
+pkg_version: 1.0.1
+template_projects:
+- builtin_files:
+  - files_and_folders:
+    - .config
+    - .cproject
+    - .gitignore
+    - .ignore_format.yml
+    - .project
+    - .settings
+    - buildinfo.gpdsc
+    - cconfig.h
+    - configuration.xml
+    - docs
+    - drivers
+    - Kconfig
+    - makefile.targets
+    - ports
+    - project.uvoptx
+    - project.uvprojx
+    - R7FA6M4AF3CFB.pincfg
+    - ra
+    - ra_cfg
+    - ra_gen
+    - README.md
+    - rt-thread
+    - rtconfig.h
+    - rtconfig.py
+    - rtconfig_preinc.h
+    - SConscript
+    - SConstruct
+    - script
+    - src
+    - template.uvoptx
+    - template.uvprojx
+    source_path_offset: project_0
+    target_path_offset: ''
+  external_files: []
+  project_description: ''
+  project_name: project_0
+  project_type: rt-thread|@full|@4.0.4
+yaml_version: 3

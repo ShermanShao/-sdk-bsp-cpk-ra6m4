@@ -1,0 +1,22 @@
+[
+ {
+  "path": "/packages/iot/cJSON", 
+  "ver": "v1.7.14", 
+  "name": "CJSON"
+ }, 
+ {
+  "path": "/packages/iot/WiFi/rw007", 
+  "ver": "latest", 
+  "name": "RW007"
+ }, 
+ {
+  "path": "/packages/iot/iot_cloud/ali-iotkit", 
+  "ver": "latest", 
+  "name": "ALI_IOTKIT"
+ }, 
+ {
+  "path": "/packages/peripherals/sensors/ISL29035", 
+  "ver": "latest", 
+  "name": "ISL29035"
+ }
+]

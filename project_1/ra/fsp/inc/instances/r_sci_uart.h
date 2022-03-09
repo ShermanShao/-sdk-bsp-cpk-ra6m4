@@ -54,11 +54,12 @@ typedef enum e_sci_clk_src
 } sci_clk_src_t;
 
 /** UART flow control mode definition */
-typedef enum e_flow_control
+typedef enum e_sci_uart_flow_control
 {
-    SCI_UART_FLOW_CONTROL_RTS    = 0U, ///< Use SCI pin for RTS
-    SCI_UART_FLOW_CONTROL_CTS    = 1U, ///< Use SCI pin for CTS
-    SCI_UART_FLOW_CONTROL_CTSRTS = 3U, ///< Use SCI pin for CTS, external pin for RTS
+    SCI_UART_FLOW_CONTROL_RTS             = 0U, ///< Use SCI pin for RTS
+    SCI_UART_FLOW_CONTROL_CTS             = 1U, ///< Use SCI pin for CTS
+    SCI_UART_FLOW_CONTROL_CTSRTS          = 3U, ///< Use SCI pin for CTS, external pin for RTS
+    SCI_UART_FLOW_CONTROL_HARDWARE_CTSRTS = 8U, ///< Use CTSn_RTSn pin for RTS and CTSn pin for CTS. Available only for some channels on selected MCUs. See hardware manual for channel specific options
 } sci_uart_flow_control_t;
 
 /** UART instance control block. */
@@ -179,6 +180,7 @@ fsp_err_t R_SCI_UART_CallbackSet(uart_ctrl_t * const          p_api_ctrl,
                                  void (                     * p_callback)(uart_callback_args_t *),
                                  void const * const           p_context,
                                  uart_callback_args_t * const p_callback_memory);
+fsp_err_t R_SCI_UART_ReadStop(uart_ctrl_t * const p_api_ctrl, uint32_t * remaining_bytes);
 
 /*******************************************************************************************************************//**
  * @} (end addtogroup SCI_UART)

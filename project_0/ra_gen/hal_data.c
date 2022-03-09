@@ -8,7 +8,12 @@ const external_irq_cfg_t g_external_irq0_cfg =
     .filter_enable       = false,
     .pclk_div            = EXTERNAL_IRQ_PCLK_DIV_BY_64,
     .p_callback          = irq0_callback,
+    /** If NULL then do not add & */
+#if defined(NULL)
     .p_context           = NULL,
+#else
+    .p_context           = &NULL,
+#endif
     .p_extend            = NULL,
     .ipl                 = (12),
 #if defined(VECTOR_NUMBER_ICU_IRQ0)
@@ -54,7 +59,7 @@ sci_uart_instance_ctrl_t     g_uart7_ctrl;
                 .data_bits           = UART_DATA_BITS_8,
                 .parity              = UART_PARITY_OFF,
                 .stop_bits           = UART_STOP_BITS_1,
-                .p_callback          = uart7_isr_cb,
+                .p_callback          = user_uart7_callback,
                 .p_context           = NULL,
                 .p_extend            = &g_uart7_cfg_extend,
 #define RA_NOT_DEFINED (1)

@@ -1,6 +1,5 @@
 # for network related component
 import os
-Import('RTT_ROOT')
 from building import *
 
 objs = []

@@ -424,8 +424,8 @@ void linkkit_entry(void *p)
 #include <netdev_ipaddr.h>
 #include <netdev.h>
 
-#define WIFI_SSID       "ssid"
-#define WIFI_PW         "password"
+#define WIFI_SSID   "SSID"
+#define WIFI_PW     "PASSWORD"
 
 void linkkit_demo(void)
 {

@@ -63,6 +63,7 @@ void Reset_Handler (void)
     /* Initialize system using BSP. */
     SystemInit();
 
+    /* Call user application. */
 #ifdef __ARMCC_VERSION
     main();
 #elif defined(__GNUC__)

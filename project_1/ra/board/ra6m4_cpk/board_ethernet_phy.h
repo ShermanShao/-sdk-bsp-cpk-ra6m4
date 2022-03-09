@@ -30,7 +30,7 @@
 
 #ifndef BSP_ETHERNET_PHY_H
 #define BSP_ETHERNET_PHY_H
-#include <fsp_common_api.h>
+
 /** Common macro for FSP header files. There is also a corresponding FSP_FOOTER macro at the end of this file. */
 FSP_HEADER
 

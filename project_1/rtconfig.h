@@ -12,6 +12,7 @@
 #define RT_TICK_PER_SECOND 1000
 #define RT_USING_OVERFLOW_CHECK
 #define RT_USING_HOOK
+#define RT_HOOK_USING_FUNC_PTR
 #define RT_USING_IDLE_HOOK
 #define RT_IDLE_HOOK_LIST_SIZE 4
 #define IDLE_THREAD_STACK_SIZE 256
@@ -38,6 +39,7 @@
 
 #define RT_USING_MEMPOOL
 #define RT_USING_SMALL_MEM
+#define RT_USING_SMALL_MEM_AS_HEAP
 #define RT_USING_HEAP
 /* end of Memory Management */
 
@@ -141,7 +143,6 @@
 
 /* POSIX layer and C standard library */
 
-#define RT_LIBC_USING_TIME
 #define RT_LIBC_DEFAULT_TIMEZONE 8
 
 /* POSIX (Portable Operating System Interface) layer */
@@ -161,8 +162,6 @@
 
 /* Network */
 
-/* Socket abstraction layer */
-
 #define RT_USING_SAL
 #define SAL_INTERNET_CHECK
 
@@ -171,10 +170,6 @@
 #define SAL_USING_LWIP
 /* end of protocol stack implement */
 #define SAL_USING_POSIX
-/* end of Socket abstraction layer */
-
-/* Network interface device */
-
 #define RT_USING_NETDEV
 #define NETDEV_USING_IFCONFIG
 #define NETDEV_USING_PING
@@ -182,10 +177,6 @@
 #define NETDEV_USING_AUTO_DEFAULT
 #define NETDEV_IPV4 1
 #define NETDEV_IPV6 0
-/* end of Network interface device */
-
-/* light weight TCP/IP stack */
-
 #define RT_USING_LWIP
 #define RT_USING_LWIP203
 #define RT_LWIP_MEM_ALIGNMENT 4
@@ -228,11 +219,6 @@
 #define LWIP_SO_LINGER 0
 #define LWIP_NETIF_LOOPBACK 0
 #define RT_LWIP_USING_PING
-/* end of light weight TCP/IP stack */
-
-/* AT commands */
-
-/* end of AT commands */
 /* end of Network */
 
 /* VBUS(Virtual Software BUS) */
@@ -348,7 +334,13 @@
 
 /* enhanced kernel services */
 
+#define PKG_USING_RT_VSNPRINTF_FULL
+#define PKG_USING_RT_VSNPRINTF_FULL_LATEST_VERSION
 /* end of enhanced kernel services */
+
+/* POSIX extension functions */
+
+/* end of POSIX extension functions */
 
 /* acceleration: Assembly language or algorithmic acceleration packages */
 
@@ -376,6 +368,10 @@
 
 /* miscellaneous packages */
 
+/* project laboratory */
+
+/* end of project laboratory */
+
 /* samples: kernel and components samples */
 
 /* end of samples: kernel and components samples */
@@ -385,10 +381,12 @@
 /* end of entertainment: terminal games and other interesting software packages */
 /* end of miscellaneous packages */
 /* end of RT-Thread online packages */
+#define SOC_FAMILY_RENESAS
+#define SOC_SERIES_R7FA6M4
 
 /* Hardware Drivers Config */
 
-#define SOC_SERIES_R7FA6M4AF
+#define SOC_R7FA6M4AF
 
 /* Onboard Peripheral Drivers */
 
@@ -418,6 +416,5 @@
 #define RA_RW007_RST_PIN 0x040F
 /* end of Board extended module Drivers */
 /* end of Hardware Drivers Config */
-#define SOC_FAMILY_RENESAS
 
 #endif

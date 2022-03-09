@@ -57,7 +57,7 @@ typedef struct st_bsp_leds
  * found in the bsp_leds_t structure. */
 typedef enum e_bsp_led
 {
-    BSP_LED_LED1 = 0,                  ///< TB LED - Red
+    BSP_LED_LED3 = 0,                  ///< TB LED - Red
 } bsp_led_t;
 
 /***********************************************************************************************************************

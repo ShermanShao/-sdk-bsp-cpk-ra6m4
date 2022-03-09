@@ -15,7 +15,7 @@
 
 开发板正面外观如下图：
 
-![image-20211011174017429](docs/picture/cpk-ra6m4.png)
+![image-20211011174017429](docs/picture/cpk-ra6m4.png) 
 
 该开发板常用 **板载资源** 如下：
 
@@ -44,8 +44,10 @@
 | CAN                | 支持               |                |
 | 持续更新中...      |                    |                |
 | **外接外设** | **支持情况** | **备注** |
-| WiFi        | 支持        |  [RW007 WiFi 网络模块](https://github.com/RT-Thread-packages/rw007)  |
+| WiFi 模块     | 支持        |  [RW007 WiFi 网络模块](https://github.com/RT-Thread-packages/rw007)  |
 | 温湿度传感器   | 支持       |  [HS300x 温湿度模块](https://github.com/Guozhanxin/hs300x) |
+| 室内空气质量传感器 | 支持 | [zmod4410 室内空气质量模块](https://github.com/ShermanShao/zmod4410) |
+| 光线传感器 | 支持 | [isl29035光线传感器模块](https://github.com/ShermanShao/isl29035) |
 
 
 ## 使用说明
@@ -65,7 +67,7 @@
 
 **硬件连接**
 
-使用 USB 数据线连接开发板到 PC。使用 USB 转串口工具连接 P613(TXD)、P614(RXD)。
+使用 USB 数据线连接开发板到 PC，使用 J-link 接口下载和 DEBUG 程序。使用 USB 转串口工具连接 UART7：P613(TXD)、P614(RXD)。
 
 **编译下载**
 
@@ -75,13 +77,13 @@
 
 - 下载：打开 J-Flash lite 工具，选择芯片型号 R7FA6M4AF，点击 OK 进入工具。选择 BSP 目录下 MDK 编译出的 /object/ra6m4.hex 文件，点击 Program Device 按钮开始烧录。具体操作过程可参考下图步骤：
 
-![image-20211011181555421](docs/picture/jflash1.png)
+![image-20211011181555421](docs/picture/jflash1.png) 
 
-![image-20211011182047981](docs/picture/jflash2.png)
+![image-20211011182047981](docs/picture/jflash2.png) 
 
-![image-20211011182434519](docs/picture/jflash.png)
+![image-20211011182434519](docs/picture/jflash.png) 
 
-![image-20211011182949604](docs/picture/jflash3.png)
+![image-20211011182949604](docs/picture/jflash3.png) 
 
 **查看运行结果**
 
@@ -153,16 +155,17 @@ void hal_entry(void)
 
 需要修改瑞萨的 BSP 外设配置或添加新的外设端口，需要用到瑞萨的 [FSP](https://www2.renesas.cn/jp/zh/software-tool/flexible-software-package-fsp#document) 配置工具。请务必按照如下步骤完成配置。配置中有任何问题可到[RT-Thread 社区论坛](https://club.rt-thread.org/)中提问。
 
-1. [下载灵活配置软件包 (FSP) | Renesas](https://www.renesas.com/cn/zh/software-tool/flexible-software-package-fsp)，建议使用 FSP 3.1.0
-2. 下载安装完成后，需要添加 CPK-RA6M4 开发板的[官方板级支持包](https://www2.renesas.cn/document/sws/1527176?language=zh&r=1527191)
-3. 如何将 BSP 配置包添加到 FSP 中，请参考文档[如何导入板级支持包](https://www2.renesas.cn/document/ppt/1527171?language=zh&r=1527191)
-4. 请查看文档：[使用瑞萨 FSP 配置工具](./docs/使用瑞萨FSP配置工具.md)。在 MDK 中通过添加自定义命名来打开当前工程的 FSP 配置。
+1. [下载灵活配置软件包 (FSP) | Renesas](https://www.renesas.com/cn/zh/software-tool/flexible-software-package-fsp)，请使用 FSP 3.5.0 版本
+2. 下载安装完成后，需要添加 CPK-RA6M4 开发板的官方板级支持包
+> 打开[ CPK-RA6M4 开发板详情页](https://www2.renesas.cn/jp/zh/products/microcontrollers-microprocessors/ra-cortex-m-mcus/cpk-ra6m4-evaluation-board)，在**“下载”**列表中找到 **”CPK-RA6M4板级支持包“**，点击链接即可下载
+3. 如何将 **”CPK-RA6M4板级支持包“**添加到 FSP 中，请参考文档[如何导入板级支持包](https://www2.renesas.cn/document/ppt/1527171?language=zh&r=1527191)
+4. 请查看文档：[使用 FSP 配置外设驱动](../docs/RA系列使用FSP配置外设驱动.md)，在 MDK 中通过添加自定义命名来打开当前工程的 FSP 配置。
 
 **ENV 配置**
 
 - 如何使用 ENV 工具：[RT-Thread env 工具用户手册](https://www.rt-thread.org/document/site/#/development-tools/env/env)
 
-此 BSP 默认只开启了 串口7 的功能，如果需使用更多高级功能例如组件、软件包等，需要利用 ENV 工具进行配置。
+此 BSP 默认只开启了 UART7 的功能，如果需使用更多高级功能例如组件、软件包等，需要利用 ENV 工具进行配置。
 
 步骤如下：
 1. 在 bsp 下打开 env 工具。
@@ -177,7 +180,7 @@ void hal_entry(void)
 
 可按照下图操作，修改 Utilities 中的选项：
 
-![image-20211214102231248](docs/picture/readme_faq1.png)
+![image-20211214102231248](docs/picture/readme_faq1.png) 
 
 ## 联系人信息
 

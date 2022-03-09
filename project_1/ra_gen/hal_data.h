@@ -42,8 +42,8 @@ extern spi_instance_ctrl_t g_spi1_ctrl;
 extern const spi_cfg_t g_spi1_cfg;
 
 /** Callback used by SPI Instance. */
-#ifndef g_spi1_callback
-void g_spi1_callback(spi_callback_args_t * p_args);
+#ifndef spi1_callback
+void spi1_callback(spi_callback_args_t * p_args);
 #endif
 
 
@@ -77,8 +77,8 @@ void irq0_callback(external_irq_callback_args_t * p_args);
             extern const uart_cfg_t g_uart7_cfg;
             extern const sci_uart_extended_cfg_t g_uart7_cfg_extend;
 
-            #ifndef uart7_isr_cb
-            void uart7_isr_cb(uart_callback_args_t * p_args);
+            #ifndef user_uart7_callback
+            void user_uart7_callback(uart_callback_args_t * p_args);
             #endif
 void hal_entry(void);
 void g_hal_init(void);

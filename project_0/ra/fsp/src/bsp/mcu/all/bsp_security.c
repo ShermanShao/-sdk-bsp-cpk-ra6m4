@@ -62,26 +62,28 @@ typedef BSP_CMSE_NONSECURE_CALL void (*volatile bsp_nonsecure_func_t)(void);
   #pragma section=".tz_data_flash_ns_start"
   #pragma section=".tz_sdram_ns_start"
   #pragma section=".tz_qspi_flash_ns_start"
+  #pragma section=".tz_ospi_device_0_ns_start"
+  #pragma section=".tz_ospi_device_1_ns_start"
 
 /* &__tz_<REGION>_C is the address of the non-secure callable section. Must assign value to this variable or
  * linker will give error. */
 
 /* &__tz_<REGION>_N is the start address of the non-secure region. */
-BSP_DONT_REMOVE void const * const __tz_FLASH_C      BSP_ALIGN_VARIABLE(1024) @".tz_flash_nsc_start" = 0;
-BSP_DONT_REMOVE void const * const __tz_FLASH_N      BSP_ALIGN_VARIABLE(32768) @".tz_flash_ns_start" = 0;
-BSP_DONT_REMOVE void const * const __tz_RAM_C        BSP_ALIGN_VARIABLE(1024) @".tz_ram_nsc_start";
-BSP_DONT_REMOVE void const * const __tz_RAM_N        BSP_ALIGN_VARIABLE(8192) @".tz_ram_ns_start";
-BSP_DONT_REMOVE void const * const __tz_DATA_FLASH_N BSP_ALIGN_VARIABLE(1024) @".tz_data_flash_ns_start";
+BSP_DONT_REMOVE void const * const __tz_FLASH_C BSP_ALIGN_VARIABLE(1024) @".tz_flash_nsc_start" = 0;
+BSP_DONT_REMOVE void const * const __tz_FLASH_N BSP_ALIGN_VARIABLE(32768) @".tz_flash_ns_start" = 0;
+BSP_DONT_REMOVE void * __tz_RAM_C               BSP_ALIGN_VARIABLE(1024) @".tz_ram_nsc_start";
+BSP_DONT_REMOVE void * __tz_RAM_N               BSP_ALIGN_VARIABLE(8192) @".tz_ram_ns_start";
+BSP_DONT_REMOVE void * __tz_DATA_FLASH_N        BSP_ALIGN_VARIABLE(1024) @".tz_data_flash_ns_start";
 
   #if BSP_FEATURE_SDRAM_START_ADDRESS
-BSP_DONT_REMOVE void const * const __tz_SDRAM_N @".tz_sdram_ns_start";
+BSP_DONT_REMOVE void * __tz_SDRAM_N @".tz_sdram_ns_start";
   #endif
-BSP_DONT_REMOVE void const * const __tz_QSPI_FLASH_N @".tz_qspi_flash_ns_start";
+BSP_DONT_REMOVE void * __tz_QSPI_FLASH_N @".tz_qspi_flash_ns_start";
   #if BSP_FEATURE_OSPI_DEVICE_0_START_ADDRESS
-BSP_DONT_REMOVE void const * const __tz_OSPI_DEVICE_0_N @".tz_ospi_device_0_ns_start";
+BSP_DONT_REMOVE void * __tz_OSPI_DEVICE_0_N @".tz_ospi_device_0_ns_start";
   #endif
   #if BSP_FEATURE_OSPI_DEVICE_1_START_ADDRESS
-BSP_DONT_REMOVE void const * const __tz_OSPI_DEVICE_1_N @".tz_ospi_device_1_ns_start";
+BSP_DONT_REMOVE void * __tz_OSPI_DEVICE_1_N @".tz_ospi_device_1_ns_start";
   #endif
 
 BSP_DONT_REMOVE uint32_t const * const gp_start_of_nonsecure_flash = (uint32_t *) &__tz_FLASH_N;
@@ -264,19 +266,23 @@ void R_BSP_SecurityInit (void)
     R_PSCU->MSSAR = BSP_TZ_CFG_MSSAR;
 
     /* Initialize Type 2 SARs. */
-    R_CPSCU->CSAR      = BSP_TZ_CFG_CSAR;      /* Cache Security Attribution. */
-    R_SYSTEM->RSTSAR   = BSP_TZ_CFG_RSTSAR;    /* RSTSRn Security Attribution. */
-    R_SYSTEM->LVDSAR   = BSP_TZ_CFG_LVDSAR;    /* LVD Security Attribution. */
-    R_SYSTEM->CGFSAR   = BSP_TZ_CFG_CGFSAR;    /* CGC Security Attribution. */
-    R_SYSTEM->LPMSAR   = BSP_TZ_CFG_LPMSAR;    /* LPM Security Attribution. */
-    R_SYSTEM->DPFSAR   = BSP_TZ_CFG_DPFSAR;    /* Deep Standby Interrupt Factor Security Attribution. */
-    R_SYSTEM->BBFSAR   = BSP_TZ_CFG_BBFSAR;    /* Battery Backup Security Attribution. */
-    R_CPSCU->ICUSARA   = BSP_TZ_CFG_ICUSARA;   /* External IRQ Security Attribution. */
-    R_CPSCU->ICUSARB   = BSP_TZ_CFG_ICUSARB;   /* NMI Security Attribution. */
-    R_CPSCU->ICUSARC   = BSP_TZ_CFG_ICUSARC;   /* DMAC Channel Security Attribution. */
-    R_CPSCU->ICUSARD   = BSP_TZ_CFG_ICUSARD;   /* SELSR0 Security Attribution. */
-    R_CPSCU->ICUSARE   = BSP_TZ_CFG_ICUSARE;   /* WUPEN0 Security Attribution. */
-    R_CPSCU->ICUSARF   = BSP_TZ_CFG_ICUSARF;   /* WUPEN1 Security Attribution. */
+    R_CPSCU->CSAR    = BSP_TZ_CFG_CSAR;        /* Cache Security Attribution. */
+    R_SYSTEM->RSTSAR = BSP_TZ_CFG_RSTSAR;      /* RSTSRn Security Attribution. */
+    R_SYSTEM->LVDSAR = BSP_TZ_CFG_LVDSAR;      /* LVD Security Attribution. */
+    R_SYSTEM->CGFSAR = BSP_TZ_CFG_CGFSAR;      /* CGC Security Attribution. */
+    R_SYSTEM->LPMSAR = BSP_TZ_CFG_LPMSAR;      /* LPM Security Attribution. */
+    R_SYSTEM->DPFSAR = BSP_TZ_CFG_DPFSAR;      /* Deep Standby Interrupt Factor Security Attribution. */
+  #ifdef BSP_TZ_CFG_BBFSAR
+    R_SYSTEM->BBFSAR = BSP_TZ_CFG_BBFSAR;      /* Battery Backup Security Attribution. */
+  #endif
+    R_CPSCU->ICUSARA = BSP_TZ_CFG_ICUSARA;     /* External IRQ Security Attribution. */
+    R_CPSCU->ICUSARB = BSP_TZ_CFG_ICUSARB;     /* NMI Security Attribution. */
+    R_CPSCU->ICUSARC = BSP_TZ_CFG_ICUSARC;     /* DMAC Channel Security Attribution. */
+    R_CPSCU->ICUSARD = BSP_TZ_CFG_ICUSARD;     /* SELSR0 Security Attribution. */
+    R_CPSCU->ICUSARE = BSP_TZ_CFG_ICUSARE;     /* WUPEN0 Security Attribution. */
+  #ifdef BSP_TZ_CFG_ICUSARF
+    R_CPSCU->ICUSARF = BSP_TZ_CFG_ICUSARF;     /* WUPEN1 Security Attribution. */
+  #endif
     R_FCACHE->FSAR     = BSP_TZ_CFG_FSAR;      /* FLWT and FCKMHZ Security Attribution. */
     R_CPSCU->SRAMSAR   = BSP_TZ_CFG_SRAMSAR;   /* SRAM Security Attribution. */
     R_CPSCU->STBRAMSAR = BSP_TZ_CFG_STBRAMSAR; /* Standby RAM Security Attribution. */

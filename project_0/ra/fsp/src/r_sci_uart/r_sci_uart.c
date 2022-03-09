@@ -279,6 +279,7 @@ const uart_api_t g_uart_on_sci =
     .baudSet            = R_SCI_UART_BaudSet,
     .communicationAbort = R_SCI_UART_Abort,
     .callbackSet        = R_SCI_UART_CallbackSet,
+    .readStop           = R_SCI_UART_ReadStop,
 };
 
 /*******************************************************************************************************************//**
@@ -297,7 +298,8 @@ const uart_api_t g_uart_on_sci =
  * @retval  FSP_SUCCESS                    Channel opened successfully.
  * @retval  FSP_ERR_ASSERTION              Pointer to UART control block or configuration structure is NULL.
  * @retval  FSP_ERR_IP_CHANNEL_NOT_PRESENT The requested channel does not exist on this MCU.
- * @retval  FSP_ERR_INVALID_ARGUMENT       Flow control is enabled but flow control pin is not defined.
+ * @retval  FSP_ERR_INVALID_ARGUMENT       Flow control is enabled but flow control pin is not defined or selected channel
+ *                                         does not support "Hardware CTS and Hardware RTS" flow control.
  * @retval  FSP_ERR_ALREADY_OPEN           Control block has already been opened or channel is being used by another
  *                                         instance. Call close() then open() to reconfigure.
  *
@@ -327,6 +329,12 @@ fsp_err_t R_SCI_UART_Open (uart_ctrl_t * const p_api_ctrl, uart_cfg_t const * co
         FSP_ERROR_RETURN(
             ((sci_uart_extended_cfg_t *) p_cfg->p_extend)->flow_control_pin != SCI_UART_INVALID_16BIT_PARAM,
             FSP_ERR_INVALID_ARGUMENT);
+    }
+
+    if (((sci_uart_extended_cfg_t *) p_cfg->p_extend)->flow_control == SCI_UART_FLOW_CONTROL_HARDWARE_CTSRTS)
+    {
+        FSP_ERROR_RETURN((0U != (((1U << (p_cfg->channel)) & BSP_FEATURE_SCI_UART_CSTPEN_CHANNELS))),
+                         FSP_ERR_INVALID_ARGUMENT);
     }
 
     FSP_ASSERT(p_cfg->rxi_irq >= 0);
@@ -719,26 +727,19 @@ fsp_err_t R_SCI_UART_BaudSet (uart_ctrl_t * const p_api_ctrl, void const * const
     FSP_ASSERT((p_ctrl->p_reg->SCR_b.CKE & 0x2) == 0U);
 #endif
 
+    /* Save SCR configurations except transmit interrupts. Resuming transmission after reconfiguring baud settings is
+     * not supported. */
+    uint8_t preserved_scr = p_ctrl->p_reg->SCR & (uint8_t) ~(SCI_SCR_TIE_MASK | SCI_SCR_TEIE_MASK);
+
     /* Disables transmitter and receiver. This terminates any in-progress transmission. */
-    p_ctrl->p_reg->SCR &= (uint8_t) ~(SCI_SCR_TE_MASK | SCI_SCR_TIE_MASK | SCI_SCR_TEIE_MASK |
-                                      SCI_SCR_RE_MASK | SCI_SCR_RIE_MASK);
-    p_ctrl->p_tx_src = NULL;
+    p_ctrl->p_reg->SCR = preserved_scr & (uint8_t) ~(SCI_SCR_TE_MASK | SCI_SCR_RE_MASK | SCI_SCR_RIE_MASK);
+    p_ctrl->p_tx_src   = NULL;
 
     /* Apply new baud rate register settings. */
     r_sci_uart_baud_set(p_ctrl->p_reg, p_baud_setting);
 
-    uint32_t mask_enable = 0;
-#if (SCI_UART_CFG_RX_ENABLE)
-
-    /* Enable receive. */
-    mask_enable |= (SCI_SCR_RE_MASK | SCI_SCR_RIE_MASK);
-#endif
-#if (SCI_UART_CFG_TX_ENABLE)
-
-    /* Enable transmit. */
-    mask_enable |= SCI_SCR_TE_MASK;
-#endif
-    p_ctrl->p_reg->SCR |= (uint8_t) mask_enable;
+    /* Restore all settings except transmit interrupts. */
+    p_ctrl->p_reg->SCR = preserved_scr;
 
     return FSP_SUCCESS;
 }
@@ -873,6 +874,64 @@ fsp_err_t R_SCI_UART_Abort (uart_ctrl_t * const p_api_ctrl, uart_dir_t communica
 #endif
 
     return err;
+}
+
+/*******************************************************************************************************************//**
+ * Provides API to abort ongoing read. Reception is still enabled after abort(). Any characters received after abort()
+ * and before the transfer is reset in the next call to read(), will arrive via the callback function with event
+ * UART_EVENT_RX_CHAR.
+ * Implements @ref uart_api_t::readStop
+ *
+ * @retval  FSP_SUCCESS                  UART transaction aborted successfully.
+ * @retval  FSP_ERR_ASSERTION            Pointer to UART control block is NULL.
+ * @retval  FSP_ERR_NOT_OPEN             The control block has not been opened.
+ * @retval  FSP_ERR_UNSUPPORTED          The requested Abort direction is unsupported.
+ *
+ * @return                       See @ref RENESAS_ERROR_CODES or functions called by this function for other possible
+ *                               return codes. This function calls:
+ *                                   * @ref transfer_api_t::disable
+ **********************************************************************************************************************/
+fsp_err_t R_SCI_UART_ReadStop (uart_ctrl_t * const p_api_ctrl, uint32_t * remaining_bytes)
+{
+    sci_uart_instance_ctrl_t * p_ctrl = (sci_uart_instance_ctrl_t *) p_api_ctrl;
+
+#if (SCI_UART_CFG_PARAM_CHECKING_ENABLE)
+    FSP_ASSERT(p_ctrl);
+    FSP_ERROR_RETURN(SCI_UART_OPEN == p_ctrl->open, FSP_ERR_NOT_OPEN);
+#endif
+
+#if (SCI_UART_CFG_RX_ENABLE)
+    *remaining_bytes      = p_ctrl->rx_dest_bytes;
+    p_ctrl->rx_dest_bytes = 0U;
+ #if SCI_UART_CFG_DTC_SUPPORTED
+    if (NULL != p_ctrl->p_cfg->p_transfer_rx)
+    {
+        fsp_err_t err = p_ctrl->p_cfg->p_transfer_rx->p_api->disable(p_ctrl->p_cfg->p_transfer_rx->p_ctrl);
+        FSP_ERROR_RETURN(FSP_SUCCESS == err, err);
+
+        transfer_properties_t transfer_info;
+        err = p_ctrl->p_cfg->p_transfer_rx->p_api->infoGet(p_ctrl->p_cfg->p_transfer_rx->p_ctrl, &transfer_info);
+        FSP_ERROR_RETURN(FSP_SUCCESS == err, err);
+        *remaining_bytes = transfer_info.transfer_length_remaining;
+    }
+ #endif
+ #if SCI_UART_CFG_FIFO_SUPPORT
+    if (0U != p_ctrl->fifo_depth)
+    {
+        /* Reset the receive fifo */
+        p_ctrl->p_reg->FCR_b.RFRST = 1U;
+
+        /* Wait until RFRST cleared after 1 PCLK according to section 34.2.26 "FIFO Control Register (FCR) in the
+         * RA6M3 manual R01UH0886EJ0100 or the relevant section for the MCU being used.*/
+        FSP_HARDWARE_REGISTER_WAIT(p_ctrl->p_reg->FCR_b.RFRST, 0U);
+    }
+ #endif
+#else
+
+    return FSP_ERR_UNSUPPORTED;
+#endif
+
+    return FSP_SUCCESS;
 }
 
 /*******************************************************************************************************************//**
@@ -1247,8 +1306,17 @@ static void r_sci_uart_config_set (sci_uart_instance_ctrl_t * const p_ctrl, uart
 
     sci_uart_extended_cfg_t * p_extend = (sci_uart_extended_cfg_t *) p_cfg->p_extend;
 
-    /* Configure CTS flow control if CTS/RTS flow control is enabled. */
-    p_ctrl->p_reg->SPMR = ((uint8_t) (p_extend->flow_control << R_SCI0_SPMR_CTSE_Pos) & R_SCI0_SPMR_CTSE_Msk);
+    /* Configure flow control if CTS/RTS flow control is enabled. */
+#if BSP_FEATURE_SCI_UART_CSTPEN_CHANNELS
+    if (p_extend->flow_control == SCI_UART_FLOW_CONTROL_HARDWARE_CTSRTS)
+    {
+        p_ctrl->p_reg->SPMR = R_SCI0_SPMR_CSTPEN_Msk | R_SCI0_SPMR_CTSE_Msk;
+    }
+    else
+#endif
+    {
+        p_ctrl->p_reg->SPMR = ((uint8_t) (p_extend->flow_control << R_SCI0_SPMR_CTSE_Pos) & R_SCI0_SPMR_CTSE_Msk);
+    }
 
     uint32_t semr = 0;
 
@@ -1573,7 +1641,7 @@ void sci_uart_txi_isr (void)
  * This interrupt also calls the callback function for RTS pin control if it is registered in R_SCI_UART_Open(). This is
  * special functionality to expand SCI hardware capability and make RTS/CTS hardware flow control possible. If macro
  * 'SCI_UART_CFG_FLOW_CONTROL_SUPPORT' is set, it is called at the beginning in this function to set the RTS pin high,
- * then it is it is called again just before leaving this function to set the RTS pin low.
+ * then it is called again just before leaving this function to set the RTS pin low.
  * @retval    none
  **********************************************************************************************************************/
 void sci_uart_rxi_isr (void)

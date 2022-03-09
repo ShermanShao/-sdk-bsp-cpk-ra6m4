@@ -28,13 +28,26 @@
  *                             add support for tasks bound to cpu
  * 2021-02-24     Meco Man     rearrange rt_thread_control() - schedule the thread when close it
  * 2021-11-15     THEWON       Remove duplicate work between idle and _thread_exit
+ * 2021-12-27     Meco Man     remove .init_priority
+ * 2022-01-07     Gabriel      Moving __on_rt_xxxxx_hook to thread.c
+ * 2022-01-24     THEWON       let rt_thread_sleep return thread->error when using signal
  */
 
 #include <rthw.h>
 #include <rtthread.h>
 #include <stddef.h>
 
-#ifdef RT_USING_HOOK
+#ifndef __on_rt_thread_inited_hook
+    #define __on_rt_thread_inited_hook(thread)      __ON_HOOK_ARGS(rt_thread_inited_hook, (thread))
+#endif
+#ifndef __on_rt_thread_suspend_hook
+    #define __on_rt_thread_suspend_hook(thread)     __ON_HOOK_ARGS(rt_thread_suspend_hook, (thread))
+#endif
+#ifndef __on_rt_thread_resume_hook
+    #define __on_rt_thread_resume_hook(thread)      __ON_HOOK_ARGS(rt_thread_resume_hook, (thread))
+#endif
+
+#if defined(RT_USING_HOOK) && defined(RT_HOOK_USING_FUNC_PTR)
 static void (*rt_thread_suspend_hook)(rt_thread_t thread);
 static void (*rt_thread_resume_hook) (rt_thread_t thread);
 static void (*rt_thread_inited_hook) (rt_thread_t thread);
@@ -105,6 +118,43 @@ static void _thread_exit(void)
     rt_schedule();
 }
 
+/**
+ * @brief   This function is the timeout function for thread, normally which is invoked
+ *          when thread is timeout to wait some resource.
+ *
+ * @param   parameter is the parameter of thread timeout function
+ */
+static void _thread_timeout(void *parameter)
+{
+    struct rt_thread *thread;
+    register rt_base_t temp;
+
+    thread = (struct rt_thread *)parameter;
+
+    /* parameter check */
+    RT_ASSERT(thread != RT_NULL);
+    RT_ASSERT((thread->stat & RT_THREAD_STAT_MASK) == RT_THREAD_SUSPEND);
+    RT_ASSERT(rt_object_get_type((rt_object_t)thread) == RT_Object_Class_Thread);
+
+    /* disable interrupt */
+    temp = rt_hw_interrupt_disable();
+
+    /* set error number */
+    thread->error = -RT_ETIMEOUT;
+
+    /* remove from suspend list */
+    rt_list_remove(&(thread->tlist));
+
+    /* insert to schedule ready list */
+    rt_schedule_insert_thread(thread);
+
+    /* enable interrupt */
+    rt_hw_interrupt_enable(temp);
+
+    /* do schedule */
+    rt_schedule();
+}
+
 static rt_err_t _thread_init(struct rt_thread *thread,
                              const char       *name,
                              void (*entry)(void *parameter),
@@ -138,10 +188,15 @@ static rt_err_t _thread_init(struct rt_thread *thread,
 
     /* priority init */
     RT_ASSERT(priority < RT_THREAD_PRIORITY_MAX);
-    thread->init_priority    = priority;
     thread->current_priority = priority;
 
     thread->number_mask = 0;
+
+#ifdef RT_USING_EVENT
+    thread->event_set = 0;
+    thread->event_info = 0;
+#endif
+
 #if RT_THREAD_PRIORITY_MAX > 32
     thread->number = 0;
     thread->high_mask = 0;
@@ -173,7 +228,7 @@ static rt_err_t _thread_init(struct rt_thread *thread,
     /* initialize thread timer */
     rt_timer_init(&(thread->thread_timer),
                   thread->name,
-                  rt_thread_timeout,
+                  _thread_timeout,
                   thread,
                   0,
                   RT_TIMER_FLAG_ONE_SHOT);
@@ -197,6 +252,13 @@ static rt_err_t _thread_init(struct rt_thread *thread,
 #ifdef RT_USING_CPU_USAGE
     thread->duration_tick = 0;
 #endif
+
+
+#ifdef RT_USING_MODULE
+    thread->module_id = 0;
+#endif
+
+    thread->user_data = 0;
 
     RT_OBJECT_HOOK_CALL(rt_thread_inited_hook, (thread));
 
@@ -241,7 +303,7 @@ rt_err_t rt_thread_init(struct rt_thread *thread,
                         rt_uint8_t        priority,
                         rt_uint32_t       tick)
 {
-    /* thread check */
+    /* parameter check */
     RT_ASSERT(thread != RT_NULL);
     RT_ASSERT(stack_start != RT_NULL);
 
@@ -292,13 +354,10 @@ RTM_EXPORT(rt_thread_self);
  */
 rt_err_t rt_thread_startup(rt_thread_t thread)
 {
-    /* thread check */
+    /* parameter check */
     RT_ASSERT(thread != RT_NULL);
     RT_ASSERT((thread->stat & RT_THREAD_STAT_MASK) == RT_THREAD_INIT);
     RT_ASSERT(rt_object_get_type((rt_object_t)thread) == RT_Object_Class_Thread);
-
-    /* set current priority to initialize priority */
-    thread->current_priority = thread->init_priority;
 
     /* calculate priority attribute */
 #if RT_THREAD_PRIORITY_MAX > 32
@@ -310,7 +369,7 @@ rt_err_t rt_thread_startup(rt_thread_t thread)
 #endif /* RT_THREAD_PRIORITY_MAX > 32 */
 
     RT_DEBUG_LOG(RT_DEBUG_THREAD, ("startup a thread:%s with priority:%d\n",
-                                   thread->name, thread->init_priority));
+                                   thread->name, thread->current_priority));
     /* change thread stat */
     thread->stat = RT_THREAD_SUSPEND;
     /* then resume it */
@@ -338,7 +397,7 @@ rt_err_t rt_thread_detach(rt_thread_t thread)
 {
     rt_base_t lock;
 
-    /* thread check */
+    /* parameter check */
     RT_ASSERT(thread != RT_NULL);
     RT_ASSERT(rt_object_get_type((rt_object_t)thread) == RT_Object_Class_Thread);
     RT_ASSERT(rt_object_is_systemobject((rt_object_t)thread));
@@ -441,7 +500,7 @@ rt_err_t rt_thread_delete(rt_thread_t thread)
 {
     rt_base_t lock;
 
-    /* thread check */
+    /* parameter check */
     RT_ASSERT(thread != RT_NULL);
     RT_ASSERT(rt_object_get_type((rt_object_t)thread) == RT_Object_Class_Thread);
     RT_ASSERT(rt_object_is_systemobject((rt_object_t)thread) == RT_FALSE);
@@ -521,6 +580,9 @@ rt_err_t rt_thread_sleep(rt_tick_t tick)
     /* disable interrupt */
     temp = rt_hw_interrupt_disable();
 
+    /* reset thread error */
+    thread->error = RT_EOK;
+
     /* suspend thread */
     rt_thread_suspend(thread);
 
@@ -537,7 +599,7 @@ rt_err_t rt_thread_sleep(rt_tick_t tick)
     if (thread->error == -RT_ETIMEOUT)
         thread->error = RT_EOK;
 
-    return RT_EOK;
+    return thread->error;
 }
 
 /**
@@ -580,6 +642,9 @@ rt_err_t rt_thread_delay_until(rt_tick_t *tick, rt_tick_t inc_tick)
     /* disable interrupt */
     level = rt_hw_interrupt_disable();
 
+    /* reset thread error */
+    thread->error = RT_EOK;
+
     cur_tick = rt_tick_get();
     if (cur_tick - *tick < inc_tick)
     {
@@ -612,7 +677,7 @@ rt_err_t rt_thread_delay_until(rt_tick_t *tick, rt_tick_t inc_tick)
         rt_hw_interrupt_enable(level);
     }
 
-    return RT_EOK;
+    return thread->error;
 }
 RTM_EXPORT(rt_thread_delay_until);
 
@@ -658,7 +723,7 @@ rt_err_t rt_thread_control(rt_thread_t thread, int cmd, void *arg)
 {
     register rt_base_t temp;
 
-    /* thread check */
+    /* parameter check */
     RT_ASSERT(thread != RT_NULL);
     RT_ASSERT(rt_object_get_type((rt_object_t)thread) == RT_Object_Class_Thread);
 
@@ -760,8 +825,11 @@ RTM_EXPORT(rt_thread_control);
 /**
  * @brief   This function will suspend the specified thread and change it to suspend state.
  *
- * @note    If suspend self thread, after this function call, the
- *          rt_schedule() must be invoked.
+ * @note    This function ONLY can suspend current thread itself.
+ *          Do not use the rt_thread_suspend and rt_thread_resume functions to synchronize the activities of threads.
+ *          You have no way of knowing what code a thread is executing when you suspend it.
+ *          If you suspend a thread while it is executing a critical area which is protected by a mutex,
+ *          other threads attempt to use that mutex and have to wait. Deadlocks can occur very easily.
  *
  * @param   thread is the thread to be suspended.
  *
@@ -773,27 +841,22 @@ rt_err_t rt_thread_suspend(rt_thread_t thread)
     register rt_base_t stat;
     register rt_base_t temp;
 
-    /* thread check */
+    /* parameter check */
     RT_ASSERT(thread != RT_NULL);
     RT_ASSERT(rt_object_get_type((rt_object_t)thread) == RT_Object_Class_Thread);
+    RT_ASSERT(thread == rt_thread_self());
 
     RT_DEBUG_LOG(RT_DEBUG_THREAD, ("thread suspend:  %s\n", thread->name));
 
     stat = thread->stat & RT_THREAD_STAT_MASK;
     if ((stat != RT_THREAD_READY) && (stat != RT_THREAD_RUNNING))
     {
-        RT_DEBUG_LOG(RT_DEBUG_THREAD, ("thread suspend: thread disorder, 0x%2x\n",
-                                       thread->stat));
+        RT_DEBUG_LOG(RT_DEBUG_THREAD, ("thread suspend: thread disorder, 0x%2x\n", thread->stat));
         return -RT_ERROR;
     }
 
     /* disable interrupt */
     temp = rt_hw_interrupt_disable();
-    if (stat == RT_THREAD_RUNNING)
-    {
-        /* not suspend running status thread on other core */
-        RT_ASSERT(thread == rt_thread_self());
-    }
 
     /* change thread stat */
     rt_schedule_remove_thread(thread);
@@ -813,6 +876,8 @@ RTM_EXPORT(rt_thread_suspend);
 /**
  * @brief   This function will resume a thread and put it to system ready queue.
  *
+ * @note    Do not use the rt_thread_suspend and rt_thread_resume functions to synchronize the activities of threads.
+ *
  * @param   thread is the thread to be resumed.
  *
  * @return  Return the operation status. If the return value is RT_EOK, the function is successfully executed.
@@ -822,7 +887,7 @@ rt_err_t rt_thread_resume(rt_thread_t thread)
 {
     register rt_base_t temp;
 
-    /* thread check */
+    /* parameter check */
     RT_ASSERT(thread != RT_NULL);
     RT_ASSERT(rt_object_get_type((rt_object_t)thread) == RT_Object_Class_Thread);
 
@@ -854,44 +919,6 @@ rt_err_t rt_thread_resume(rt_thread_t thread)
     return RT_EOK;
 }
 RTM_EXPORT(rt_thread_resume);
-
-/**
- * @brief   This function is the timeout function for thread, normally which is invoked
- *          when thread is timeout to wait some resource.
- *
- * @param   parameter is the parameter of thread timeout function
- */
-void rt_thread_timeout(void *parameter)
-{
-    struct rt_thread *thread;
-    register rt_base_t temp;
-
-    thread = (struct rt_thread *)parameter;
-
-    /* thread check */
-    RT_ASSERT(thread != RT_NULL);
-    RT_ASSERT((thread->stat & RT_THREAD_STAT_MASK) == RT_THREAD_SUSPEND);
-    RT_ASSERT(rt_object_get_type((rt_object_t)thread) == RT_Object_Class_Thread);
-
-    /* disable interrupt */
-    temp = rt_hw_interrupt_disable();
-
-    /* set error number */
-    thread->error = -RT_ETIMEOUT;
-
-    /* remove from suspend list */
-    rt_list_remove(&(thread->tlist));
-
-    /* insert to schedule ready list */
-    rt_schedule_insert_thread(thread);
-
-    /* enable interrupt */
-    rt_hw_interrupt_enable(temp);
-
-    /* do schedule */
-    rt_schedule();
-}
-RTM_EXPORT(rt_thread_timeout);
 
 /**
  * @brief   This function will find the specified thread.

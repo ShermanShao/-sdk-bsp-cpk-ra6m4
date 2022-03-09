@@ -4,11 +4,16 @@ icu_instance_ctrl_t g_external_irq15_ctrl;
 const external_irq_cfg_t g_external_irq15_cfg =
 {
     .channel             = 15,
-    .trigger             = EXTERNAL_IRQ_TRIG_RISING,
+    .trigger             = EXTERNAL_IRQ_TRIG_FALLING,
     .filter_enable       = false,
     .pclk_div            = EXTERNAL_IRQ_PCLK_DIV_BY_64,
     .p_callback          = irq15_callback,
+    /** If NULL then do not add & */
+#if defined(NULL)
     .p_context           = NULL,
+#else
+    .p_context           = &NULL,
+#endif
     .p_extend            = NULL,
     .ipl                 = (12),
 #if defined(VECTOR_NUMBER_ICU_IRQ15)
@@ -150,7 +155,7 @@ const spi_cfg_t g_spi1_cfg =
     .bit_order           = SPI_BIT_ORDER_MSB_FIRST,
     .p_transfer_tx       = g_spi1_P_TRANSFER_TX,
     .p_transfer_rx       = g_spi1_P_TRANSFER_RX,
-    .p_callback          = g_spi1_callback,
+    .p_callback          = spi1_callback,
 
     .p_context           = NULL,
     .p_extend            = (void *)&g_spi1_ext_cfg,
@@ -171,7 +176,12 @@ const external_irq_cfg_t g_external_irq0_cfg =
     .filter_enable       = false,
     .pclk_div            = EXTERNAL_IRQ_PCLK_DIV_BY_64,
     .p_callback          = irq0_callback,
+    /** If NULL then do not add & */
+#if defined(NULL)
     .p_context           = NULL,
+#else
+    .p_context           = &NULL,
+#endif
     .p_extend            = NULL,
     .ipl                 = (12),
 #if defined(VECTOR_NUMBER_ICU_IRQ0)
@@ -217,7 +227,7 @@ sci_uart_instance_ctrl_t     g_uart7_ctrl;
                 .data_bits           = UART_DATA_BITS_8,
                 .parity              = UART_PARITY_OFF,
                 .stop_bits           = UART_STOP_BITS_1,
-                .p_callback          = uart7_isr_cb,
+                .p_callback          = user_uart7_callback,
                 .p_context           = NULL,
                 .p_extend            = &g_uart7_cfg_extend,
 #define RA_NOT_DEFINED (1)

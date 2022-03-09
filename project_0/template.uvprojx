@@ -49,7 +49,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>ra6m4</OutputName>
+          <OutputName>rtthread</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -82,11 +82,11 @@
           <AfterMake>
             <RunUserProg1>0</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name></UserProg1Name>
+            <UserProg1Name>cmd /c "start "Renesas" /w cmd /c ""$Slauncher\rasc_launcher.bat" "3.5.0" --gensecurebundle --compiler ARMv6 "$Pconfiguration.xml" "$L%L" 2&gt; "%%TEMP%%\rasc_stderr.out"""</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
-            <nStopA1X>0</nStopA1X>
+            <nStopA1X>2</nStopA1X>
             <nStopA2X>0</nStopA2X>
           </AfterMake>
           <SelectedForBatchBuild>0</SelectedForBatchBuild>
@@ -381,30 +381,12 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>Source Group 1</GroupName>
-        </Group>
-        <Group>
           <GroupName>:Renesas RA Smart Configurator:Common Sources</GroupName>
           <Files>
             <File>
               <FileName>hal_entry.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\hal_entry.c</FilePath>
-            </File>
-            <File>
-              <FileName>SConscript</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\src\SConscript</FilePath>
-            </File>
-            <File>
-              <FileName>mqtt_client.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\mqtt_client.c</FilePath>
-            </File>
-            <File>
-              <FileName>mqtt_client.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\src\mqtt_client.h</FilePath>
             </File>
           </Files>
         </Group>

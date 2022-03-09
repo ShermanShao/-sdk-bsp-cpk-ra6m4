@@ -42,6 +42,7 @@ FSP_HEADER
 #define BSP_IO_PWPR_B0WI_OFFSET       (7U)
 #define BSP_IO_PWPR_PFSWE_OFFSET      (6U)
 #define BSP_IO_PFS_PDR_OUTPUT         (4U)
+#define BSP_IO_PRV_PIN_WRITE_MASK     (0xFFFE3FFE)
 
 /***********************************************************************************************************************
  * Typedef definitions
@@ -76,6 +77,9 @@ typedef enum e_bsp_io_port
     BSP_IO_PORT_09 = 0x0900,           ///< IO port 9
     BSP_IO_PORT_10 = 0x0A00,           ///< IO port 10
     BSP_IO_PORT_11 = 0x0B00,           ///< IO port 11
+    BSP_IO_PORT_12 = 0x0C00,           ///< IO port 12
+    BSP_IO_PORT_13 = 0x0D00,           ///< IO port 13
+    BSP_IO_PORT_14 = 0x0E00,           ///< IO port 14
 } bsp_io_port_t;
 
 /** Superset list of all possible IO port pins. */
@@ -284,6 +288,57 @@ typedef enum e_bsp_io_port_pin_t
     BSP_IO_PORT_11_PIN_13 = 0x0B0D,    ///< IO port 11 pin 13
     BSP_IO_PORT_11_PIN_14 = 0x0B0E,    ///< IO port 11 pin 14
     BSP_IO_PORT_11_PIN_15 = 0x0B0F,    ///< IO port 11 pin 15
+
+    BSP_IO_PORT_12_PIN_00 = 0x0C00,    ///< IO port 12 pin 0
+    BSP_IO_PORT_12_PIN_01 = 0x0C01,    ///< IO port 12 pin 1
+    BSP_IO_PORT_12_PIN_02 = 0x0C02,    ///< IO port 12 pin 2
+    BSP_IO_PORT_12_PIN_03 = 0x0C03,    ///< IO port 12 pin 3
+    BSP_IO_PORT_12_PIN_04 = 0x0C04,    ///< IO port 12 pin 4
+    BSP_IO_PORT_12_PIN_05 = 0x0C05,    ///< IO port 12 pin 5
+    BSP_IO_PORT_12_PIN_06 = 0x0C06,    ///< IO port 12 pin 6
+    BSP_IO_PORT_12_PIN_07 = 0x0C07,    ///< IO port 12 pin 7
+    BSP_IO_PORT_12_PIN_08 = 0x0C08,    ///< IO port 12 pin 8
+    BSP_IO_PORT_12_PIN_09 = 0x0C09,    ///< IO port 12 pin 9
+    BSP_IO_PORT_12_PIN_10 = 0x0C0A,    ///< IO port 12 pin 10
+    BSP_IO_PORT_12_PIN_11 = 0x0C0B,    ///< IO port 12 pin 11
+    BSP_IO_PORT_12_PIN_12 = 0x0C0C,    ///< IO port 12 pin 12
+    BSP_IO_PORT_12_PIN_13 = 0x0C0D,    ///< IO port 12 pin 13
+    BSP_IO_PORT_12_PIN_14 = 0x0C0E,    ///< IO port 12 pin 14
+    BSP_IO_PORT_12_PIN_15 = 0x0C0F,    ///< IO port 12 pin 15
+
+    BSP_IO_PORT_13_PIN_00 = 0x0D00,    ///< IO port 13 pin 0
+    BSP_IO_PORT_13_PIN_01 = 0x0D01,    ///< IO port 13 pin 1
+    BSP_IO_PORT_13_PIN_02 = 0x0D02,    ///< IO port 13 pin 2
+    BSP_IO_PORT_13_PIN_03 = 0x0D03,    ///< IO port 13 pin 3
+    BSP_IO_PORT_13_PIN_04 = 0x0D04,    ///< IO port 13 pin 4
+    BSP_IO_PORT_13_PIN_05 = 0x0D05,    ///< IO port 13 pin 5
+    BSP_IO_PORT_13_PIN_06 = 0x0D06,    ///< IO port 13 pin 6
+    BSP_IO_PORT_13_PIN_07 = 0x0D07,    ///< IO port 13 pin 7
+    BSP_IO_PORT_13_PIN_08 = 0x0D08,    ///< IO port 13 pin 8
+    BSP_IO_PORT_13_PIN_09 = 0x0D09,    ///< IO port 13 pin 9
+    BSP_IO_PORT_13_PIN_10 = 0x0D0A,    ///< IO port 13 pin 10
+    BSP_IO_PORT_13_PIN_11 = 0x0D0B,    ///< IO port 13 pin 11
+    BSP_IO_PORT_13_PIN_12 = 0x0D0C,    ///< IO port 13 pin 12
+    BSP_IO_PORT_13_PIN_13 = 0x0D0D,    ///< IO port 13 pin 13
+    BSP_IO_PORT_13_PIN_14 = 0x0D0E,    ///< IO port 13 pin 14
+    BSP_IO_PORT_13_PIN_15 = 0x0D0F,    ///< IO port 13 pin 15
+
+    BSP_IO_PORT_14_PIN_00 = 0x0E00,    ///< IO port 14 pin 0
+    BSP_IO_PORT_14_PIN_01 = 0x0E01,    ///< IO port 14 pin 1
+    BSP_IO_PORT_14_PIN_02 = 0x0E02,    ///< IO port 14 pin 2
+    BSP_IO_PORT_14_PIN_03 = 0x0E03,    ///< IO port 14 pin 3
+    BSP_IO_PORT_14_PIN_04 = 0x0E04,    ///< IO port 14 pin 4
+    BSP_IO_PORT_14_PIN_05 = 0x0E05,    ///< IO port 14 pin 5
+    BSP_IO_PORT_14_PIN_06 = 0x0E06,    ///< IO port 14 pin 6
+    BSP_IO_PORT_14_PIN_07 = 0x0E07,    ///< IO port 14 pin 7
+    BSP_IO_PORT_14_PIN_08 = 0x0E08,    ///< IO port 14 pin 8
+    BSP_IO_PORT_14_PIN_09 = 0x0E09,    ///< IO port 14 pin 9
+    BSP_IO_PORT_14_PIN_10 = 0x0E0A,    ///< IO port 14 pin 10
+    BSP_IO_PORT_14_PIN_11 = 0x0E0B,    ///< IO port 14 pin 11
+    BSP_IO_PORT_14_PIN_12 = 0x0E0C,    ///< IO port 14 pin 12
+    BSP_IO_PORT_14_PIN_13 = 0x0E0D,    ///< IO port 14 pin 13
+    BSP_IO_PORT_14_PIN_14 = 0x0E0E,    ///< IO port 14 pin 14
+    BSP_IO_PORT_14_PIN_15 = 0x0E0F,    ///< IO port 14 pin 15
 } bsp_io_port_pin_t;
 
 /***********************************************************************************************************************
@@ -309,16 +364,34 @@ __STATIC_INLINE uint32_t R_BSP_PinRead (bsp_io_port_pin_t pin)
 }
 
 /*******************************************************************************************************************//**
- * Set a pin to output and set the output level to the level provided
+ * Set a pin to output and set the output level to the level provided. If PFS protection is enabled, disable PFS
+ * protection using R_BSP_PinAccessEnable() before calling this function.
  *
  * @param[in]  pin      The pin
  * @param[in]  level    The level
  **********************************************************************************************************************/
 __STATIC_INLINE void R_BSP_PinWrite (bsp_io_port_pin_t pin, bsp_io_level_t level)
 {
+    /* Clear PMR, ASEL, ISEL and PODR bits. */
+    uint32_t pfs_bits = R_PFS->PORT[pin >> 8].PIN[pin & BSP_IO_PRV_8BIT_MASK].PmnPFS;
+    pfs_bits &= BSP_IO_PRV_PIN_WRITE_MASK;
+
     /* Set output level and pin direction to output. */
-    uint32_t lvl = (uint32_t) level;
-    R_PFS->PORT[pin >> 8].PIN[pin & BSP_IO_PRV_8BIT_MASK].PmnPFS = BSP_IO_PFS_PDR_OUTPUT | lvl;
+    uint32_t lvl = ((uint32_t) level | pfs_bits);
+    R_PFS->PORT[pin >> 8].PIN[pin & BSP_IO_PRV_8BIT_MASK].PmnPFS = (BSP_IO_PFS_PDR_OUTPUT | lvl);
+}
+
+/*******************************************************************************************************************//**
+ * Configure a pin. If PFS protection is enabled, disable PFS protection using R_BSP_PinAccessEnable() before calling
+ * this function.
+ *
+ * @param[in]  pin      The pin
+ * @param[in]  cfg      Configuration for the pin (PmnPFS register setting)
+ **********************************************************************************************************************/
+__STATIC_INLINE void R_BSP_PinCfg (bsp_io_port_pin_t pin, uint32_t cfg)
+{
+    /* Configure a pin. */
+    R_PFS->PORT[pin >> 8].PIN[pin & BSP_IO_PRV_8BIT_MASK].PmnPFS = cfg;
 }
 
 /*******************************************************************************************************************//**

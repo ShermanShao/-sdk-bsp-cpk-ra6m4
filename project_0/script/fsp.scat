@@ -201,6 +201,12 @@ LOAD_REGION_FLASH FLASH_ORIGIN ALIGN 0x80 LIMITED_FLASH_LENGTH
 
 #endif
 
+  MCUBOOT_SCE9_KEY +0 FIXED
+  {
+    *(.mcuboot_sce9_key)
+  }
+
+
   INIT_ARRAY +0 FIXED
   {
     *(.init_array)
@@ -273,6 +279,18 @@ LOAD_REGION_FLASH FLASH_ORIGIN ALIGN 0x80 LIMITED_FLASH_LENGTH
   /* This is the end of RAM used in the application. */
   RAM_END +0 EMPTY 4
   {
+  }
+
+  ; Support for OctaRAM
+  OSPI_DEVICE_0_NO_LOAD OSPI_DEVICE_0_START UNINIT NOCOMPRESS
+  {
+    *(.ospi_device_0_no_load*)
+  }
+
+  ; Support for OctaRAM
+  OSPI_DEVICE_1_NO_LOAD OSPI_DEVICE_1_START UNINIT NOCOMPRESS
+  {
+    *(.ospi_device_1_no_load*)
   }
 
   __tz_RAM_C RAM_NSC_START EMPTY 0

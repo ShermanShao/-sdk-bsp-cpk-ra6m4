@@ -112,7 +112,7 @@ features_zh:
   V 电源。
 pkg_type: Board_Support_Packages
 pkg_vendor: Sherman
-pkg_version: 1.2.0
+pkg_version: 1.2.1
 template_projects:
 - builtin_files:
   - files_and_folders:

@@ -31,11 +31,11 @@ mcuboot 支持多种升级方式，如 overwrite swap等，这里选用overwrite
 * 注：这里只是列出了当前示例工程中用到的flash的分区信息，更详细的内容可以在 {project}/ra_cfg/mcu-tools/include/sysflash/sysflash.h 中查看
 
 ## APP构建
-将BSP作为APP为例（GCC工具链情况下，MDK类似），在构建APP时需要做以下修改：
+将BSP作为APP为例（GCC工具链情况下，MDK类似），在构建APP时需要做以下修改，修改后需要编译构建APP镜像：
 * 链接脚本
 ```
 # {app}/script/memory_regions.ld
-FLASH_START = 0x00010200;
+FLASH_START = 0x00010200; # 由于镜像的前0x200是镜像头，因此实际app的代码是从0x00010200开始链接的
 FLASH_LENGTH = 0x00077e00;
 ```
 
@@ -51,12 +51,12 @@ _RA_BOOT_IMAGE
 在 {mcuboot_dir}/ra/fsp/src/rm_mcuboot_port/rm_mcuboot_port_sign.py中，填入相关路径：
 ```
 # 密钥文件
-os.environ['MCUBOOT_IMAGE_SIGNING_KEY'] = r'D:\workspace\Sherman\rs_mcuboot\ra6m4_boot\ra\mcu-tools\MCUboot\root-ec-p256.pem'
+os.environ['MCUBOOT_IMAGE_SIGNING_KEY'] = r'{rs_mcuboot}\rs_mcuboot\ra6m4_boot\ra\mcu-tools\MCUboot\root-ec-p256.pem'
 # arm-none-eabi-objcopy 路径
-os.environ['MCUBOOT_APP_BIN_CONVERTER'] = r'D:\workspace\Sherman\env_released_1.2.3_gcc10_python2\tools\gnu_gcc\arm_gcc\mingw\bin\arm-none-eabi-objcopy.exe'
+os.environ['MCUBOOT_APP_BIN_CONVERTER'] = r'{env}\tools\gnu_gcc\arm_gcc\mingw\bin\arm-none-eabi-objcopy.exe'
 ```
 #### step 2 执行签名命令
-将下面命令的mcuboot_dir，app_dir换成实际的MCUBOOT，APP路径即可
+在任意路径下启动命令行，执行下述命令即可，注意将下面命令的mcuboot_dir，app_dir换成实际的MCUBOOT，APP路径
 ~~~
 python {mcuboot_dir}\ra\fsp\src\rm_mcuboot_port\rm_mcuboot_port_sign.py sign --header-size 0x200 --align 128 --max-align 128 --slot-size 0x78000 --max-sectors 15 --overwrite-only --confirm --pad-header {app_dir}\rtthread.elf {app_dir}\rtthread.signed.bin
 ~~~
@@ -66,7 +66,7 @@ python {mcuboot_dir}\ra\fsp\src\rm_mcuboot_port\rm_mcuboot_port_sign.py sign --h
 
 ![download1](docs/picture/app_download1.jpg)
 
-![download2](docs/picture/app_download1.jpg)
+![download2](docs/picture/app_download2.jpg)
 
 ![mcuboot](docs/picture/mcuboot.png)
 

@@ -3,8 +3,8 @@ import shutil
 import subprocess
 import sys
 os.environ['MCUBOOT_IMAGE_VERSION'] = '1.0.0'
-os.environ['MCUBOOT_IMAGE_SIGNING_KEY'] = r'D:\workspace\Sherman\rs_mcuboot\ra6m4_boot\ra\mcu-tools\MCUboot\root-ec-p256.pem'
-os.environ['MCUBOOT_APP_BIN_CONVERTER'] = r'D:\workspace\Sherman\env_released_1.2.3_gcc10_python2\tools\gnu_gcc\arm_gcc\mingw\bin\arm-none-eabi-objcopy.exe'
+os.environ['MCUBOOT_IMAGE_SIGNING_KEY'] = r'{boot_dir}\ra6m4_boot\ra\mcu-tools\MCUboot\root-ec-p256.pem'
+os.environ['MCUBOOT_APP_BIN_CONVERTER'] = r'{tool_chain_dir}\tools\gnu_gcc\arm_gcc\mingw\bin\arm-none-eabi-objcopy.exe'
 # Determine root of bootloader project to find related files
 boot_project_root = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../../..'))
 

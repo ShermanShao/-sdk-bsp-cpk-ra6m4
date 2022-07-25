@@ -40,10 +40,12 @@ FLASH_LENGTH = 0x00077e00;
 ```
 
 * 添加全局宏定义
+按照如下图所示位置添加相应宏
 ```
 _RENESAS_RA_
 _RA_BOOT_IMAGE
 ```
+![setttings](docs/picture/settings.png)
 
 ## 镜像签名
 由于mcuboot在boot的阶段会对镜像进行安全校验，因此需要对APP的镜像文件签名。

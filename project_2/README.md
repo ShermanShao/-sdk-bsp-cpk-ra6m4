@@ -50,9 +50,9 @@ _RA_BOOT_IMAGE
 ## 镜像签名
 由于mcuboot在boot的阶段会对镜像进行安全校验，因此需要对APP的镜像文件签名。
 #### step 1 设置变量
-在 {mcuboot_dir}/ra/fsp/src/rm_mcuboot_port/rm_mcuboot_port_sign.py中，填入相关路径：
+在 {mcuboot_dir}/ra/fsp/src/rm_mcuboot_port/rm_mcuboot_port_sign.py中，填入相关绝对路径：
 ```
-# 密钥文件
+# 密钥文件, 使用了FSP默认的root-ec-p256.pem
 os.environ['MCUBOOT_IMAGE_SIGNING_KEY'] = r'{rs_mcuboot}\rs_mcuboot\ra6m4_boot\ra\mcu-tools\MCUboot\root-ec-p256.pem'
 # arm-none-eabi-objcopy 路径
 os.environ['MCUBOOT_APP_BIN_CONVERTER'] = r'{env}\tools\gnu_gcc\arm_gcc\mingw\bin\arm-none-eabi-objcopy.exe'

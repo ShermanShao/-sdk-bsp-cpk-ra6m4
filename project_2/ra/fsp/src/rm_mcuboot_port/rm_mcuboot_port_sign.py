@@ -2,7 +2,9 @@ import os
 import shutil
 import subprocess
 import sys
-
+os.environ['MCUBOOT_IMAGE_VERSION'] = '1.0.0'
+os.environ['MCUBOOT_IMAGE_SIGNING_KEY'] = r'C:\Users\Wcy34\Documents\Github\bkup\sdk-bsp-cpk-ra6m4\project_2\ra\mcu-tools\root-ec-p256.pem'
+os.environ['MCUBOOT_APP_BIN_CONVERTER'] = r'C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2021.10\bin\arm-none-eabi-objcopy.exe'
 # Determine root of bootloader project to find related files
 boot_project_root = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../../..'))
 

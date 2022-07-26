@@ -64,7 +64,7 @@ python {mcuboot_dir}\ra\fsp\src\rm_mcuboot_port\rm_mcuboot_port_sign.py sign --h
 ~~~
 
 ## 下载烧录
-将签名后的镜像 rtthread.signed.bin 后下载至 image0 secondary SLOT 的起始地址（0x00088000）即可
+将签名后的镜像 **rtthread.signed.bin** 后下载至 image0 secondary SLOT 的起始地址（**0x00088000**）即可
 
 ![download1](docs/picture/app_download1.jpg)
 
